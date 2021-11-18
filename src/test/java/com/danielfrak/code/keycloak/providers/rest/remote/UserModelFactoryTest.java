@@ -192,6 +192,7 @@ class UserModelFactoryTest {
         when(userProvider.addUser(realm, username))
                 .thenReturn(new TestUserModel(username));
         when(newGroupModel.getName()).thenReturn("newGroup");
+        when(newGroupModel.getId()).thenReturn("1234");
         when(realm.getGroups()).thenReturn(Collections.singletonList(newGroupModel));
 
         LegacyUser legacyUser = createLegacyUser(username);
@@ -382,7 +383,7 @@ class UserModelFactoryTest {
         when(newGroupModel.getId()).thenReturn(groupId);
 
         LegacyUser legacyUser = createLegacyUser(username);
-        legacyUser.setGroups(List.of(groupName));
+        legacyUser.setGroups(List.of(groupId));
 
         var result = userModelFactory.create(legacyUser, realm);
 
