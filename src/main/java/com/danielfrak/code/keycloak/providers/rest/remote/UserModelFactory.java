@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
+import java.lang.NullPointerException;
 
 import static com.danielfrak.code.keycloak.providers.rest.ConfigurationProperties.*;
 
@@ -55,7 +56,9 @@ public class UserModelFactory {
     public UserModel create(LegacyUser legacyUser, RealmModel realm) {
         LOG.infof("Creating user model for: %s", legacyUser.getUsername());
 
-        UserModel userModel;
+        UserModel userModel = null;
+
+        try {
         if (isEmpty(legacyUser.getId())) {
             userModel = session.userLocalStorage().addUser(realm, legacyUser.getUsername());
         } else {
@@ -91,6 +94,12 @@ public class UserModelFactory {
         if (legacyUser.getRequiredActions() != null) {
             legacyUser.getRequiredActions()
                 .forEach(userModel::addRequiredAction);
+        }
+
+        } catch (NullPointerException e) {
+            System.out.println("=++++=========================>>>>>");
+            e.printStackTrace();
+            throw e;
         }
 
         return userModel;
@@ -172,7 +181,10 @@ public class UserModelFactory {
 
         final String effectiveGroupId = groupId;
         Optional<GroupModel> group = realm.getGroups().stream()
-                .filter(g -> effectiveGroupId.equalsIgnoreCase(g.getId())).findFirst();
+                .filter(g -> 
+                    effectiveGroupId.equalsIgnoreCase(g.getId()) || 
+                    effectiveGroupId.equalsIgnoreCase(g.getName())
+                ).findFirst();
 
         GroupModel realmGroup = group
                 .map(g -> {
